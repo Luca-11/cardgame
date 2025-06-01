@@ -1,6 +1,9 @@
 import Image from "next/image";
 import { type Card } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
+import { getCardImageUrl } from "@/lib/image-utils";
+import { useState } from "react";
+import { CardFallback } from "./CardFallback";
 
 interface CardComponentProps {
   card: Card;
@@ -15,6 +18,8 @@ const rarityColors = {
 };
 
 export const CardComponent = ({ card, className }: CardComponentProps) => {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <div
       className={cn(
@@ -23,13 +28,19 @@ export const CardComponent = ({ card, className }: CardComponentProps) => {
         className
       )}
     >
-      <div className="aspect-[3/4] relative">
-        <Image
-          src={card.image_url}
-          alt={card.name}
-          fill
-          className="object-cover"
-        />
+      <div className="aspect-[3/4] relative bg-gray-100">
+        {!imageError ? (
+          <Image
+            src={getCardImageUrl(card.image_url)}
+            alt={card.name}
+            fill
+            className="object-cover"
+            onError={() => setImageError(true)}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <CardFallback name={card.name} rarity={card.rarity} />
+        )}
       </div>
       <div className="p-4">
         <h3 className="text-lg font-bold">{card.name}</h3>

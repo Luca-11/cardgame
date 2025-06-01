@@ -1,4 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { CurrencyDisplay } from "@/components/CurrencyDisplay";
+import { useCurrencyStore } from "@/store/currency";
+import { toast } from "sonner";
 
 interface Booster {
   id: string;
@@ -47,12 +50,25 @@ const AVAILABLE_BOOSTERS: Booster[] = [
 ];
 
 export default function BoostersPage() {
+  const removeDiamonds = useCurrencyStore((state) => state.removeDiamonds);
+
+  const handlePurchase = (booster: Booster) => {
+    const success = removeDiamonds(booster.price);
+    if (success) {
+      toast.success(`Vous avez acheté un ${booster.name} !`);
+      // TODO: Implémenter l'ouverture du pack
+    } else {
+      toast.error("Vous n'avez pas assez de diamants !");
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-8">
       <div className="container mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-8">
-          Packs & Boosters
-        </h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold">Packs & Boosters</h1>
+          <CurrencyDisplay />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {AVAILABLE_BOOSTERS.map((booster) => (
@@ -100,6 +116,7 @@ export default function BoostersPage() {
                     <Button
                       className="w-full bg-purple-600 hover:bg-purple-700"
                       size="lg"
+                      onClick={() => handlePurchase(booster)}
                     >
                       Acheter pour {booster.price} 💎
                     </Button>
