@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { useCurrencyStore } from "@/store/currency";
 import { toast } from "sonner";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 interface Booster {
   id: string;
@@ -65,12 +66,9 @@ export function BoostersClient() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-8">
-      <div className="container mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Packs & Boosters</h1>
-          <CurrencyDisplay />
-        </div>
+    <PageContainer>
+      <div className="text-white">
+        <h1 className="text-4xl font-bold mb-8">Packs & Boosters</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {AVAILABLE_BOOSTERS.map((booster) => (
@@ -129,6 +127,6 @@ export function BoostersClient() {
           ))}
         </div>
       </div>
-    </main>
+    </PageContainer>
   );
 }

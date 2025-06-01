@@ -1,38 +1,27 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-import { CollectionClient } from "./client";
+"use client";
 
-export default async function CollectionPage() {
-  const cookieStore = cookies();
+import { PageContainer } from "@/components/layout/PageContainer";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
-    }
-  );
-
-  const { data: cards } = await supabase
-    .from("cards")
-    .select("*")
-    .order("name");
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session) {
-    return null; // Le middleware redirigera vers /auth
-  }
-
+export default function CollectionPage() {
   return (
-    <CollectionClient
-      initialCards={cards || []}
-      userEmail={session.user.email}
-    />
+    <PageContainer>
+      <div className="text-white">
+        <h1 className="text-4xl font-bold mb-8">Ma Collection</h1>
+
+        <div className="bg-gray-800 rounded-xl p-8 text-center">
+          <h2 className="text-2xl mb-4">Votre collection est vide</h2>
+          <p className="text-gray-400 mb-8">
+            Commencez votre collection en ouvrant des packs de cartes !
+          </p>
+          <Link href="/boosters">
+            <Button className="bg-purple-600 hover:bg-purple-700" size="lg">
+              Ouvrir des Packs
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </PageContainer>
   );
 }
