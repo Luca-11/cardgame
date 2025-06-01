@@ -3,8 +3,12 @@
 import { Button } from "@/components/ui/button";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { useCurrencyStore } from "@/store/currency";
+import { useCardsStore, generateBoosterCards } from "@/store/cards";
 import { toast } from "sonner";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { PackOpening } from "@/components/boosters/PackOpening";
+import { useState } from "react";
+import { Card, OpenedCard } from "@/types/cards";
 
 interface Booster {
   id: string;
@@ -53,16 +57,30 @@ const AVAILABLE_BOOSTERS: Booster[] = [
 ];
 
 export function BoostersClient() {
+  const [openingCards, setOpeningCards] = useState<OpenedCard[]>([]);
+  const [isOpeningPack, setIsOpeningPack] = useState(false);
   const removeDiamonds = useCurrencyStore((state) => state.removeDiamonds);
+  const addCards = useCardsStore((state) => state.addCards);
 
   const handlePurchase = (booster: Booster) => {
     const success = removeDiamonds(booster.price);
     if (success) {
-      toast.success(`Vous avez acheté un ${booster.name} !`);
-      // TODO: Implémenter l'ouverture du pack
+      const cards = generateBoosterCards(booster.rarity).map((card) => ({
+        ...card,
+        isRevealed: false,
+      }));
+      setOpeningCards(cards);
+      setIsOpeningPack(true);
     } else {
       toast.error("Vous n'avez pas assez de diamants !");
     }
+  };
+
+  const handlePackOpened = () => {
+    addCards(openingCards);
+    setIsOpeningPack(false);
+    setOpeningCards([]);
+    toast.success("Les cartes ont été ajoutées à votre collection !");
   };
 
   return (
@@ -126,6 +144,12 @@ export function BoostersClient() {
             </div>
           ))}
         </div>
+
+        <PackOpening
+          isOpen={isOpeningPack}
+          onClose={handlePackOpened}
+          cards={openingCards}
+        />
       </div>
     </PageContainer>
   );
