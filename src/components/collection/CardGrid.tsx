@@ -1,82 +1,101 @@
+"use client";
+
+import { Card } from "@/types/cards";
 import { useState } from "react";
-import { CardComponent } from "@/components/cards/CardComponent";
-import type { Card } from "@/lib/supabase";
+import { CardDetail } from "@/components/cards/CardDetail";
+
+interface CardWithCount extends Card {
+  count?: number;
+}
 
 type CardGridProps = {
-  cards: Card[];
-};
-
-type FilterOptions = {
-  search: string;
-  rarity: string | null;
+  cards: CardWithCount[];
 };
 
 export function CardGrid({ cards }: CardGridProps) {
-  const [filters, setFilters] = useState<FilterOptions>({
-    search: "",
-    rarity: null,
-  });
+  const [selectedCard, setSelectedCard] = useState<
+    (CardWithCount & { isRevealed: boolean }) | null
+  >(null);
 
-  const filteredCards = cards.filter((card) => {
-    // Filtre par recherche
-    if (
-      filters.search &&
-      !card.name.toLowerCase().includes(filters.search.toLowerCase())
-    ) {
-      return false;
+  const getRarityColor = (rarity: string) => {
+    switch (rarity) {
+      case "legendary":
+        return "text-purple-400";
+      case "rare":
+        return "text-blue-400";
+      case "uncommon":
+        return "text-green-400";
+      default:
+        return "text-gray-400";
     }
+  };
 
-    // Filtre par rareté
-    if (filters.rarity && card.rarity !== filters.rarity) {
-      return false;
+  const getRarityGlow = (rarity: string) => {
+    switch (rarity) {
+      case "legendary":
+        return "shadow-[0_0_15px_rgba(168,85,247,0.5)]";
+      case "rare":
+        return "shadow-[0_0_15px_rgba(96,165,250,0.5)]";
+      case "uncommon":
+        return "shadow-[0_0_15px_rgba(74,222,128,0.5)]";
+      default:
+        return "";
     }
+  };
 
-    return true;
-  });
+  const handleCardClick = (card: CardWithCount) => {
+    setSelectedCard({
+      ...card,
+      isRevealed: true,
+    });
+  };
 
   return (
-    <div>
-      {/* Filtres */}
-      <div className="mb-6 space-y-4 sm:space-y-0 sm:flex sm:items-center sm:space-x-4">
-        <input
-          type="text"
-          placeholder="Rechercher une carte..."
-          className="w-full sm:w-64 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          value={filters.search}
-          onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-        />
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {cards.map((card) => (
+          <div
+            key={card.id}
+            className={`bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-purple-500 transition-all cursor-pointer ${getRarityGlow(
+              card.rarity
+            )}`}
+            onClick={() => handleCardClick(card)}
+          >
+            <div className="aspect-[3/4] bg-gray-700 relative">
+              {/* Image placeholder */}
+              <div className="w-full h-full flex items-center justify-center text-gray-500">
+                🎴
+              </div>
+              {card.count && card.count > 1 && (
+                <div className="absolute top-2 right-2 bg-black/80 text-white px-2 py-1 rounded-full text-sm font-bold">
+                  x{card.count}
+                </div>
+              )}
+            </div>
 
-        <select
-          className="w-full sm:w-auto px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          value={filters.rarity || ""}
-          onChange={(e) =>
-            setFilters({
-              ...filters,
-              rarity: e.target.value || null,
-            })
-          }
-        >
-          <option value="">Toutes les raretés</option>
-          <option value="common">Commune</option>
-          <option value="uncommon">Peu commune</option>
-          <option value="rare">Rare</option>
-          <option value="legendary">Légendaire</option>
-        </select>
-      </div>
+            <div className="p-4">
+              <h3 className={`font-bold ${getRarityColor(card.rarity)}`}>
+                {card.name}
+              </h3>
+              <p className="text-sm text-gray-400 mt-1">{card.description}</p>
 
-      {/* Grille de cartes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        {filteredCards.map((card) => (
-          <CardComponent key={card.id} card={card} />
+              <div className="flex justify-between text-xs mt-2 text-white">
+                <span>⚔️ {card.attack}</span>
+                <span>🛡️ {card.defense}</span>
+                <span>✨ {card.mana}</span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
-      {/* Message si aucune carte */}
-      {filteredCards.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          Aucune carte ne correspond à vos critères de recherche.
-        </div>
+      {selectedCard && (
+        <CardDetail
+          card={selectedCard}
+          isOpen={true}
+          onClose={() => setSelectedCard(null)}
+        />
       )}
-    </div>
+    </>
   );
 }
