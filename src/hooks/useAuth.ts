@@ -1,87 +1,77 @@
-import { useEffect, useState } from "react";
+import { create } from "zustand";
+import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
-import { createBrowserClient } from "@supabase/ssr";
 
-export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+interface AuthState {
+  user: User | null;
+  isLoading: boolean;
+  error: Error | null;
+  initialize: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+}
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+export const useAuth = create<AuthState>((set) => ({
+  user: null,
+  isLoading: true,
+  error: null,
 
-  useEffect(() => {
-    // Récupérer l'utilisateur actuel
-    const getCurrentUser = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        setUser(user);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Écouter les changements d'authentification
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    getCurrentUser();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const signIn = async (email: string, password: string) => {
+  initialize: async () => {
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      set({ user: session?.user ?? null, isLoading: false });
+
+      // Écouter les changements d'authentification
+      supabase.auth.onAuthStateChange((_event, session) => {
+        set({ user: session?.user ?? null });
+      });
+    } catch (error) {
+      set({ error: error as Error, isLoading: false });
+    }
+  },
+
+  signIn: async (email: string, password: string) => {
+    try {
+      set({ isLoading: true, error: null });
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
     } catch (error) {
-      console.error("Error signing in:", error);
-      throw error;
+      set({ error: error as Error });
+    } finally {
+      set({ isLoading: false });
     }
-  };
+  },
 
-  const signUp = async (email: string, password: string) => {
+  signUp: async (email: string, password: string) => {
     try {
+      set({ isLoading: true, error: null });
       const { error } = await supabase.auth.signUp({
         email,
         password,
       });
       if (error) throw error;
     } catch (error) {
-      console.error("Error signing up:", error);
-      throw error;
+      set({ error: error as Error });
+    } finally {
+      set({ isLoading: false });
     }
-  };
+  },
 
-  const signOut = async () => {
+  signOut: async () => {
     try {
+      set({ isLoading: true, error: null });
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     } catch (error) {
-      console.error("Error signing out:", error);
-      throw error;
+      set({ error: error as Error });
+    } finally {
+      set({ isLoading: false });
     }
-  };
-
-  return {
-    user,
-    loading,
-    signIn,
-    signUp,
-    signOut,
-  };
-};
+  },
+}));
