@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 
-function AuthContent() {
+export default function AuthPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { signIn, signUp, error, isLoading } = useAuth();
@@ -63,11 +63,6 @@ function AuthContent() {
           className="mt-8"
         >
           <div className="bg-black/50 backdrop-blur-lg rounded-xl p-8 border border-purple-900/20">
-            {error && (
-              <div className="p-4 mb-4 text-red-500 bg-red-500/10 rounded-lg">
-                {error.message || "Une erreur est survenue"}
-              </div>
-            )}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
@@ -104,6 +99,12 @@ function AuthContent() {
                   placeholder="••••••••"
                 />
               </div>
+
+              {error && (
+                <p className="text-sm text-red-500">
+                  {error.message || "Une erreur est survenue"}
+                </p>
+              )}
 
               <Button
                 type="submit"
@@ -160,17 +161,5 @@ function AuthContent() {
         </motion.div>
       </div>
     </div>
-  );
-}
-
-export default function AuthPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
-    }>
-      <AuthContent />
-    </Suspense>
   );
 }
