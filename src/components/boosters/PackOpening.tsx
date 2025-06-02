@@ -9,7 +9,7 @@ import { CardDetail } from "@/components/cards/CardDetail";
 
 interface PackOpeningProps {
   isOpen: boolean;
-  onClose: () => void;
+  _onClose: () => void;
   cards: OpenedCard[];
   onCollect: (cards: OpenedCard[]) => void;
   progress?: {
@@ -72,7 +72,7 @@ const containerVariants = {
 
 export function PackOpening({
   isOpen,
-  onClose,
+  _onClose,
   cards,
   onCollect,
   progress,

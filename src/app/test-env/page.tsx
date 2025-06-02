@@ -13,6 +13,7 @@ export default function TestEnv() {
           ? "✅ Défini"
           : "❌ Non défini"}
       </pre>
+      <p>Voici l&apos;environnement actuel :</p>
     </div>
   );
 }

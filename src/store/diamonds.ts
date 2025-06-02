@@ -32,7 +32,7 @@ export const useDiamondsStore = create<DiamondsState>()((set, get) => ({
       }
 
       // Récupérer le solde de l'utilisateur
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from("user_diamonds")
         .select("balance")
         .eq("user_id", user.id)

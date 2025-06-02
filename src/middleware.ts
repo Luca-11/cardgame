@@ -12,6 +12,16 @@ type NextRequestWithAuth = NextRequest & {
   }
 }
 
+interface CookieOptions {
+  name: string;
+  value: string;
+  maxAge?: number;
+  path?: string;
+  domain?: string;
+  secure?: boolean;
+  httpOnly?: boolean;
+}
+
 export async function middleware(request: NextRequest) {
   const res = NextResponse.next();
 
@@ -23,14 +33,14 @@ export async function middleware(request: NextRequest) {
         get(name: string) {
           return request.cookies.get(name)?.value;
         },
-        set(name: string, value: string, options: any) {
+        set(name: string, value: string, options: CookieOptions) {
           res.cookies.set({
             name,
             value,
             ...options,
           });
         },
-        remove(name: string, options: any) {
+        remove(name: string, options: CookieOptions) {
           res.cookies.set({
             name,
             value: "",
