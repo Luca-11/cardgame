@@ -2,6 +2,16 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+type NextRequestWithAuth = NextRequest & {
+  auth: {
+    userId: string;
+    user: {
+      email: string;
+      // autres propriétés...
+    }
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const res = NextResponse.next();
 

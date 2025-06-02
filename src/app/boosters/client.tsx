@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { useDiamondsStore } from "@/store/diamonds";
 import { useCardsStore, generateBoosterCards } from "@/store/cards";
-import { useRewardsStore } from "@/store/rewards";
 import { toast } from "sonner";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PackOpening } from "@/components/boosters/PackOpening";

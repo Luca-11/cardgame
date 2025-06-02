@@ -36,7 +36,7 @@ const RARITY_COLORS = {
 };
 
 export function CollectionClient({ userEmail }: CollectionClientProps) {
-  const { collection, fetchCollection, isLoading } = useCardsStore();
+  const { cards: userCards, _userEmail: userEmail } = useCardsStore();
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     search: "",
@@ -51,7 +51,7 @@ export function CollectionClient({ userEmail }: CollectionClientProps) {
   }, [fetchCollection]);
 
   // Filtrer les cartes
-  const filteredCards = collection.filter((card) => {
+  const filteredCards = userCards.filter((card) => {
     if (
       filters.search &&
       !card.name.toLowerCase().includes(filters.search.toLowerCase())
