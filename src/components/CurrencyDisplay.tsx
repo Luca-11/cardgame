@@ -4,6 +4,7 @@ import { useDiamondsStore } from "@/store/diamonds";
 import { useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loading } from "./ui/loading";
+import { Coins, Gem, Sparkles, Star, Trophy, Crown } from "lucide-react";
 
 export function CurrencyDisplay() {
   const { balance, isLoading, fetchBalance } = useDiamondsStore();
@@ -22,7 +23,7 @@ export function CurrencyDisplay() {
   }, [debouncedFetchBalance]);
 
   return (
-    <div className="flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-full">
+    <div className="flex items-center gap-2 bg-black/50 backdrop-blur-lg px-4 py-2 rounded-full border border-purple-900/20 hover:border-purple-500/50 transition-colors">
       {isLoading ? (
         <Loading size="sm" />
       ) : (
@@ -35,7 +36,7 @@ export function CurrencyDisplay() {
             className="flex items-center gap-2"
           >
             <motion.span
-              className="font-bold text-white"
+              className="font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent text-lg"
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
               transition={{
@@ -46,8 +47,7 @@ export function CurrencyDisplay() {
             >
               {balance.toLocaleString()}
             </motion.span>
-            <motion.span
-              className="text-lg"
+            <motion.div
               animate={{
                 rotate: [0, -10, 10, -10, 10, 0],
                 scale: [1, 1.2, 1],
@@ -57,8 +57,14 @@ export function CurrencyDisplay() {
                 times: [0, 0.2, 0.4, 0.6, 0.8, 1],
               }}
             >
-              💎
-            </motion.span>
+              {/* Choisissez une des icônes suivantes en décommentant celle que vous préférez */}
+              <Coins className="w-6 h-6 text-purple-400" />
+              {/* <Gem className="w-6 h-6 text-purple-400" /> */}
+              {/* <Sparkles className="w-6 h-6 text-purple-400" /> */}
+              {/* <Star className="w-6 h-6 text-purple-400" /> */}
+              {/* <Trophy className="w-6 h-6 text-purple-400" /> */}
+              {/* <Crown className="w-6 h-6 text-purple-400" /> */}
+            </motion.div>
           </motion.div>
         </AnimatePresence>
       )}

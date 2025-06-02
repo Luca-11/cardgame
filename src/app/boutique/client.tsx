@@ -10,7 +10,9 @@ import { PackOpening } from "@/components/boosters/PackOpening";
 import { useState } from "react";
 import { OpenedCard } from "@/types/cards";
 import { useSound } from "@/hooks/useSound";
-import type { ReactElement } from "react";
+import { motion } from "framer-motion";
+import { Sparkles, Gift, Crown } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 interface Product {
   id: string;
@@ -80,10 +82,10 @@ const PRODUCTS: Product[] = [
   },
 ];
 
-export function BoostersClient() {
+export function BoutiqueClient() {
   const [currentBoosterIndex, setCurrentBoosterIndex] = useState(0);
   const [isOpeningPack, setIsOpeningPack] = useState(false);
-  const [boosters, setBoosters] = useState<{ cards: OpenedCard[] }[]>([]);
+  const [boutique, setBoutique] = useState<{ cards: OpenedCard[] }[]>([]);
   const { balance: diamonds, updateBalance } = useDiamondsStore();
   const { addCards } = useCardsStore();
   const { playSound } = useSound();
@@ -95,14 +97,14 @@ export function BoostersClient() {
     }
 
     // Générer les boosters
-    const newBoosters = Array.from({ length: product.boosterCount }, () => ({
+    const newBoutique = Array.from({ length: product.boosterCount }, () => ({
       cards: generateBoosterCards(product.rarity).map((card) => ({
         ...card,
         isRevealed: false,
       })),
     }));
 
-    setBoosters(newBoosters);
+    setBoutique(newBoutique);
     setCurrentBoosterIndex(0);
     setIsOpeningPack(true);
     updateBalance(-product.price);
@@ -111,19 +113,57 @@ export function BoostersClient() {
 
   const handleClose = () => {
     setIsOpeningPack(false);
-    setBoosters([]);
+    setBoutique([]);
     setCurrentBoosterIndex(0);
   };
 
-  const handleNextBooster = (cards: OpenedCard[]) => {
-    // Ajouter les cartes à la collection
+  const handleNextBooster = async (cards: OpenedCard[]) => {
+    console.log("[BOUTIQUE] handleNextBooster - Cartes à ajouter :", cards);
+    // Ajouter les cartes à la collection Zustand
     addCards(cards);
 
-    if (currentBoosterIndex < boosters.length - 1) {
-      // Passer au prochain booster
+    // Persister chaque carte dans Supabase
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      console.error(
+        "[BOUTIQUE] Utilisateur non connecté, impossible de persister les cartes"
+      );
+      return;
+    }
+    for (const card of cards) {
+      const { error } = await supabase.from("user_cards").insert({
+        user_id: user.id,
+        card_name: card.name,
+        card_description: card.description,
+        card_image: card.image,
+        card_rarity: card.rarity,
+        card_attack: card.attack,
+        card_defense: card.defense,
+        card_mana: card.mana,
+      });
+      if (error) {
+        console.error(
+          "[BOUTIQUE] Erreur lors de l'insertion de la carte dans Supabase :",
+          error,
+          card
+        );
+      } else {
+        console.log("[BOUTIQUE] Carte insérée dans Supabase :", card);
+      }
+    }
+
+    setTimeout(() => {
+      console.log(
+        "[BOUTIQUE] Nouvelle collection Zustand :",
+        useCardsStore.getState().collection
+      );
+    }, 100);
+
+    if (currentBoosterIndex < boutique.length - 1) {
       setCurrentBoosterIndex((prev: number) => prev + 1);
     } else {
-      // Fermer le pack
       handleClose();
     }
   };
@@ -131,50 +171,80 @@ export function BoostersClient() {
   return (
     <PageContainer>
       <div className="text-white">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Boutique</h1>
-          <CurrencyDisplay />
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex justify-between items-center mb-8"
+        >
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+            Boutique de Packs
+          </h1>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {PRODUCTS.map((product) => (
-            <div
+          {PRODUCTS.map((product, index) => (
+            <motion.div
               key={product.id}
-              className="bg-gray-800 rounded-xl p-6 flex flex-col"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-gray-900/80 shadow-xl rounded-xl p-6 flex flex-col border-2 border-purple-500/40 hover:border-purple-400 hover:shadow-2xl transition-all duration-300 backdrop-blur-lg"
             >
-              <div className="text-4xl mb-4">{product.image}</div>
-              <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
-              <p className="text-gray-400 mb-4 flex-1">{product.description}</p>
+              <div className="flex items-center justify-center h-24 mb-4">
+                {product.id === "starter_pack" && (
+                  <Gift className="w-16 h-16 text-purple-400" />
+                )}
+                {product.id === "premium_pack" && (
+                  <Sparkles className="w-16 h-16 text-purple-400" />
+                )}
+                {product.id === "legendary_pack" && (
+                  <Crown className="w-16 h-16 text-purple-400" />
+                )}
+              </div>
+              <h2 className="text-2xl font-bold mb-2 text-center">
+                {product.name}
+              </h2>
+              <p className="text-gray-400 mb-4 flex-1 text-center">
+                {product.description}
+              </p>
 
               <div className="space-y-4">
-                <div className="bg-gray-700 rounded-lg p-4 space-y-2">
+                <div className="bg-gray-800/50 rounded-lg p-4 space-y-2 border border-purple-900/20">
                   <div className="flex justify-between text-sm">
                     <span>Nombre de boosters :</span>
-                    <span className="font-bold">{product.boosterCount}</span>
+                    <span className="font-bold text-purple-400">
+                      {product.boosterCount}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Cartes par booster :</span>
-                    <span className="font-bold">{product.cardsPerBooster}</span>
+                    <span className="font-bold text-purple-400">
+                      {product.cardsPerBooster}
+                    </span>
                   </div>
-                  <div className="border-t border-gray-600 my-2" />
+                  <div className="border-t border-purple-900/20 my-2" />
                   <div className="space-y-1">
                     <div className="flex justify-between text-sm">
                       <span>Communes :</span>
-                      <span className="font-bold">{product.rarity.common}</span>
+                      <span className="font-bold text-gray-400">
+                        {product.rarity.common}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Peu communes :</span>
-                      <span className="font-bold">
+                      <span className="font-bold text-green-400">
                         {product.rarity.uncommon}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Rares :</span>
-                      <span className="font-bold">{product.rarity.rare}</span>
+                      <span className="font-bold text-blue-400">
+                        {product.rarity.rare}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Légendaires :</span>
-                      <span className="font-bold">
+                      <span className="font-bold text-purple-400">
                         {product.rarity.legendary}
                       </span>
                     </div>
@@ -183,27 +253,27 @@ export function BoostersClient() {
 
                 <Button
                   onClick={() => handlePurchase(product)}
-                  className="w-full bg-purple-600 hover:bg-purple-700"
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
                   size="lg"
                 >
                   <span className="mr-2">💎</span>
                   {product.price}
                 </Button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         <PackOpening
           isOpen={isOpeningPack}
           _onClose={handleClose}
-          cards={boosters[currentBoosterIndex]?.cards || []}
+          cards={boutique[currentBoosterIndex]?.cards || []}
           onCollect={handleNextBooster}
           progress={
-            boosters.length > 1
+            boutique.length > 1
               ? {
                   current: currentBoosterIndex + 1,
-                  total: boosters.length,
+                  total: boutique.length,
                 }
               : undefined
           }

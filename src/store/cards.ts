@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 
 interface CardsState {
   cards: Card[];
+  collection: Card[];
   isLoading: boolean;
   addCards: (newCards: Card[]) => void;
   fetchCollection: () => Promise<void>;
@@ -65,37 +66,49 @@ export const generateBoosterCards = (
 
 export const useCardsStore = create<CardsState>((set, get) => ({
   cards: [],
+  collection: [],
   isLoading: false,
-  
+
   fetchCollection: async () => {
     set({ isLoading: true });
     try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError) throw authError;
+      if (!user) throw new Error("Utilisateur non connecté");
+
       const { data: userCards, error } = await supabase
         .from("user_cards")
         .select("*")
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      const cards = userCards?.map((card) => ({
-        id: card.id,
-        name: card.card_name,
-        description: card.card_description,
-        image: card.card_image,
-        rarity: card.card_rarity as CardRarity,
-        attack: card.card_attack,
-        defense: card.card_defense,
-        mana: card.card_mana,
-      })) || [];
+      const cards =
+        userCards?.map((card) => ({
+          id: card.id,
+          name: card.card_name,
+          description: card.card_description,
+          image: card.card_image,
+          rarity: card.card_rarity as CardRarity,
+          attack: card.card_attack,
+          defense: card.card_defense,
+          mana: card.card_mana,
+        })) || [];
 
-      set({ cards, isLoading: false });
+      set({ cards, collection: cards, isLoading: false });
     } catch (error) {
       console.error("Erreur lors de la récupération de la collection:", error);
-      set({ isLoading: false });
+      set({ cards: [], collection: [], isLoading: false });
     }
   },
 
-  addCards: (newCards) => set((state) => ({ 
-    cards: [...state.cards, ...newCards] 
-  })),
+  addCards: (newCards) =>
+    set((state) => ({
+      cards: [...(state.cards || []), ...newCards],
+      collection: [...(state.collection || []), ...newCards],
+    })),
 }));

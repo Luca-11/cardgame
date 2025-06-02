@@ -46,7 +46,7 @@ export function RewardsClient() {
   const getQuestDescription = (type: string, target: number) => {
     switch (type) {
       case "open_boosters":
-        return `Ouvrir ${target} boosters`;
+        return `Ouvrir ${target} boosters dans la boutique`;
       case "open_packs":
         return `Ouvrir ${target} packs`;
       case "collect_cards":
@@ -79,14 +79,18 @@ export function RewardsClient() {
 
   return (
     <PageContainer>
-      <div className="text-white">
-        <h1 className="text-4xl font-bold mb-8">Récompenses Quotidiennes</h1>
+      <div className="text-white max-w-3xl mx-auto px-4 py-8">
+        <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+          Récompenses Quotidiennes
+        </h1>
 
         {/* Section Connexion */}
-        <div className="bg-gray-800 rounded-xl p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-black/50 backdrop-blur-lg rounded-xl p-6 mb-8 border border-purple-900/20 hover:border-purple-500/50 transition-colors">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
             <div>
-              <h2 className="text-2xl font-bold">Connexion Quotidienne</h2>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+                Connexion Quotidienne
+              </h2>
               <p className="text-gray-400">
                 Série actuelle : {loginStreak?.current_streak || 0} jours
               </p>
@@ -95,16 +99,16 @@ export function RewardsClient() {
               </p>
             </div>
             <div className="text-right">
-              <p className="text-lg mb-2">
+              <p className="text-lg mb-2 font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
                 {50 + Math.min((loginStreak?.current_streak || 1) - 1, 6) * 10}{" "}
                 💎
               </p>
               <Button
                 onClick={handleClaimLoginReward}
                 disabled={!canClaimLoginReward}
-                className={`${
+                className={`px-6 py-2 rounded-full font-bold text-white transition-colors duration-300 ${
                   canClaimLoginReward
-                    ? "bg-purple-600 hover:bg-purple-700"
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                     : "bg-gray-700 cursor-not-allowed"
                 }`}
               >
@@ -116,7 +120,7 @@ export function RewardsClient() {
             {Array.from({ length: 7 }).map((_, i) => (
               <div
                 key={i}
-                className={`flex-1 h-2 rounded ${
+                className={`flex-1 h-2 rounded-full transition-colors duration-300 ${
                   (loginStreak?.current_streak || 0) > i
                     ? "bg-purple-500"
                     : "bg-gray-600"
@@ -128,22 +132,24 @@ export function RewardsClient() {
 
         {/* Section Quêtes */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold mb-4">Quêtes du Jour</h2>
+          <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+            Quêtes du Jour
+          </h2>
           {quests.map((quest) => {
             const buttonState = getQuestButtonState(quest);
             return (
               <div
                 key={quest.id}
-                className="bg-gray-800 rounded-xl p-6 flex items-center justify-between"
+                className="bg-black/50 backdrop-blur-lg rounded-xl p-6 flex flex-col md:flex-row md:items-center md:justify-between border border-purple-900/20 hover:border-purple-500/50 transition-colors"
               >
-                <div>
-                  <h3 className="font-bold mb-1">
+                <div className="mb-4 md:mb-0">
+                  <h3 className="font-bold mb-1 text-white">
                     {getQuestDescription(quest.quest_type, quest.target)}
                   </h3>
                   <div className="flex items-center gap-4">
                     <div className="flex-1 h-2 w-32 bg-gray-700 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-purple-500"
+                        className="h-full bg-purple-500 transition-all duration-300"
                         style={{
                           width: `${(quest.progress / quest.target) * 100}%`,
                         }}
@@ -155,14 +161,16 @@ export function RewardsClient() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg mb-2">{quest.reward_amount} 💎</p>
+                  <p className="text-lg mb-2 font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+                    {quest.reward_amount} 💎
+                  </p>
                   <Button
                     onClick={() => handleClaimQuestReward(quest.id)}
                     disabled={buttonState.disabled}
-                    className={`${
+                    className={`px-6 py-2 rounded-full font-bold text-white transition-colors duration-300 ${
                       buttonState.disabled
                         ? "bg-gray-700 cursor-not-allowed"
-                        : "bg-purple-600 hover:bg-purple-700"
+                        : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                     }`}
                   >
                     {buttonState.text}

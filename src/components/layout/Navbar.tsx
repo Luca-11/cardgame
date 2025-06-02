@@ -15,11 +15,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Diamond } from "lucide-react";
+import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 
 const NAVIGATION_ITEMS = [
   { href: "/collection", label: "Collection" },
   { href: "/boutique", label: "Boutique" },
-  { href: "/boosters", label: "Boosters" },
+  { href: "/rewards", label: "Récompenses" },
   { href: "/arene", label: "Arène" },
   { href: "/classement", label: "Classement" },
 ];
@@ -92,13 +93,7 @@ export function Navbar() {
               <>
                 {user ? (
                   <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                      <Diamond className="h-5 w-5 text-purple-400" />
-                      <span className="text-purple-300 font-medium">
-                        {user.user_metadata.diamonds || 0}
-                      </span>
-                    </div>
-
+                    <CurrencyDisplay />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button

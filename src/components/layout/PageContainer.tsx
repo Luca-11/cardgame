@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Navigation } from "./Navigation";
+import { Navbar } from "./Navbar";
 import { PageTransition } from "./PageTransition";
 
 interface PageContainerProps {
@@ -12,9 +12,9 @@ export const PageContainer = memo(function PageContainer({
   children,
 }: PageContainerProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
-      <Navigation />
-      <main className="container mx-auto px-4 py-8">
+    <div>
+      <Navbar />
+      <main className="container mx-auto px-4 py-8 pt-28">
         <PageTransition>{children}</PageTransition>
       </main>
     </div>

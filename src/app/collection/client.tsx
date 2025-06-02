@@ -51,7 +51,7 @@ export function CollectionClient({ userEmail }: CollectionClientProps) {
   }, [fetchCollection]);
 
   // Filtrer les cartes
-  const filteredCards = collection.filter((card) => {
+  const filteredCards = (collection || []).filter((card: Card) => {
     if (
       filters.search &&
       !card.name.toLowerCase().includes(filters.search.toLowerCase())
@@ -74,24 +74,27 @@ export function CollectionClient({ userEmail }: CollectionClientProps) {
   });
 
   // Regrouper les cartes identiques et compter leur occurrence
-  const groupedCards = filteredCards.reduce<CardWithCount[]>((acc, card) => {
-    const existingCard = acc.find(
-      (c) =>
-        c.name === card.name &&
-        c.rarity === card.rarity &&
-        c.attack === card.attack &&
-        c.defense === card.defense &&
-        c.mana === card.mana
-    );
+  const groupedCards = filteredCards.reduce<CardWithCount[]>(
+    (acc: CardWithCount[], card: Card) => {
+      const existingCard = acc.find(
+        (c: CardWithCount) =>
+          c.name === card.name &&
+          c.rarity === card.rarity &&
+          c.attack === card.attack &&
+          c.defense === card.defense &&
+          c.mana === card.mana
+      );
 
-    if (existingCard) {
-      existingCard.count++;
-    } else {
-      acc.push({ ...card, count: 1 });
-    }
+      if (existingCard) {
+        existingCard.count++;
+      } else {
+        acc.push({ ...card, count: 1 });
+      }
 
-    return acc;
-  }, []);
+      return acc;
+    },
+    []
+  );
 
   const resetFilters = () => {
     setFilters({
@@ -118,7 +121,7 @@ export function CollectionClient({ userEmail }: CollectionClientProps) {
               </h1>
               <Button
                 variant="outline"
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 border border-purple-900/20 hover:border-purple-500/50 bg-black/50 backdrop-blur-lg transition-colors"
                 onClick={() => setShowFilters(!showFilters)}
               >
                 {showFilters ? (
@@ -263,13 +266,13 @@ export function CollectionClient({ userEmail }: CollectionClientProps) {
               className="bg-black/50 backdrop-blur-lg rounded-xl p-8 text-center border border-purple-900/20"
             >
               <SlidersHorizontal className="mx-auto h-12 w-12 text-purple-400 mb-4" />
-              <h2 className="text-2xl font-bold text-white mb-2">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent mb-2">
                 Collection vide
               </h2>
               <p className="text-gray-400 mb-8">
                 Commencez votre collection en ouvrant des packs de cartes !
               </p>
-              <Link href="/boosters">
+              <Link href="/boutique">
                 <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:opacity-90">
                   Ouvrir des Packs
                 </Button>
@@ -280,6 +283,7 @@ export function CollectionClient({ userEmail }: CollectionClientProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-black/50 backdrop-blur-lg rounded-xl p-6 border border-purple-900/20 hover:border-purple-500/50 transition-colors"
             >
               <CardGrid cards={groupedCards} />
             </motion.div>

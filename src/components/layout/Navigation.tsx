@@ -13,8 +13,8 @@ const NAVIGATION_ITEMS = [
     href: "/",
   },
   {
-    label: "Packs & Boosters",
-    href: "/boosters",
+    label: "Boutique",
+    href: "/boutique",
   },
   {
     label: "Collection",
@@ -28,11 +28,11 @@ const NAVIGATION_ITEMS = [
 
 const navItemVariants = {
   hover: {
-    y: -2,
+    y: -1,
     transition: {
       type: "spring",
-      stiffness: 400,
-      damping: 10,
+      stiffness: 300,
+      damping: 15,
     },
   },
 };
@@ -43,8 +43,8 @@ const notificationVariants = {
     scale: 1,
     transition: {
       type: "spring",
-      stiffness: 400,
-      damping: 10,
+      stiffness: 300,
+      damping: 15,
     },
   },
 };
