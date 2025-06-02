@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { Filter, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 type CollectionClientProps = {
   userEmail: string | undefined;
@@ -36,7 +37,7 @@ const RARITY_COLORS = {
 };
 
 export function CollectionClient({ userEmail }: CollectionClientProps) {
-  const { cards: userCards, _userEmail: userEmail } = useCardsStore();
+  const { cards: userCards, isLoading, fetchCollection } = useCardsStore();
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     search: "",

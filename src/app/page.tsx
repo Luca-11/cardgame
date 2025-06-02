@@ -72,7 +72,7 @@ export default function HomePage() {
           >
             <h1 className="text-5xl md:text-7xl font-bold">
               <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-                Entrez dans l'Arène
+                Entrez dans l&apos;Arène
               </span>
             </h1>
             <p className="mt-6 text-xl text-gray-300 max-w-3xl mx-auto">
@@ -90,7 +90,7 @@ export default function HomePage() {
                   size="lg"
                   className="bg-gradient-to-r from-purple-500 to-pink-600 hover:opacity-90 hover:glow"
                 >
-                  Commencer l'aventure
+                  Commencer l&apos;aventure
                 </Button>
               </motion.div>
               <motion.div
@@ -168,7 +168,7 @@ export default function HomePage() {
                 Duels Stratégiques
               </h3>
               <p className="mt-2 text-gray-400">
-                Affrontez d'autres joueurs dans des combats tactiques
+                Affrontez d&apos;autres joueurs dans des combats tactiques
                 passionnants.
               </p>
             </motion.div>

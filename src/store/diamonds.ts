@@ -17,30 +17,23 @@ export const useDiamondsStore = create<DiamondsState>()((set, get) => ({
   fetchBalance: async () => {
     set({ isLoading: true, error: null });
     try {
-      // Vérifier si l'utilisateur est connecté
       const {
         data: { user },
         error: authError,
       } = await supabase.auth.getUser();
 
-      if (authError) {
-        throw new Error(`Erreur d'authentification: ${authError.message}`);
-      }
-
-      if (!user) {
-        throw new Error("Utilisateur non connecté");
-      }
+      if (authError) throw new Error(`Erreur d'authentification: ${authError.message}`);
+      if (!user) throw new Error("Utilisateur non connecté");
 
       // Récupérer le solde de l'utilisateur
+      let userBalance;
       const { data, error } = await supabase
         .from("user_diamonds")
         .select("balance")
         .eq("user_id", user.id)
         .maybeSingle();
 
-      if (error) {
-        throw new Error(`Erreur Supabase: ${error.message}`);
-      }
+      if (error) throw new Error(`Erreur Supabase: ${error.message}`);
 
       // Si l'utilisateur n'a pas encore de solde, en créer un
       if (!data) {
@@ -51,15 +44,15 @@ export const useDiamondsStore = create<DiamondsState>()((set, get) => ({
           .single();
 
         if (insertError) {
-          throw new Error(
-            `Erreur lors de la création du solde initial: ${insertError.message}`
-          );
+          throw new Error(`Erreur lors de la création du solde initial: ${insertError.message}`);
         }
 
-        data = newData;
+        userBalance = newData;
+      } else {
+        userBalance = data;
       }
 
-      set({ balance: data?.balance ?? 1000, isLoading: false });
+      set({ balance: userBalance?.balance ?? 1000, isLoading: false });
     } catch (error) {
       console.error("Erreur lors de la récupération du solde:", error);
       set({

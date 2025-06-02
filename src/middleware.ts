@@ -13,13 +13,18 @@ type NextRequestWithAuth = NextRequest & {
 }
 
 interface CookieOptions {
-  name: string;
-  value: string;
   maxAge?: number;
   path?: string;
   domain?: string;
   secure?: boolean;
   httpOnly?: boolean;
+}
+
+interface CookieMethods {
+  get: (name: string) => string | undefined;
+  set: (name: string, value: string, options: CookieOptions) => void;
+  remove: (name: string, options: CookieOptions) => void;
+  getAll: () => { name: string; value: string }[];
 }
 
 export async function middleware(request: NextRequest) {
@@ -35,19 +40,25 @@ export async function middleware(request: NextRequest) {
         },
         set(name: string, value: string, options: CookieOptions) {
           res.cookies.set({
+            ...options,
             name,
             value,
-            ...options,
           });
         },
         remove(name: string, options: CookieOptions) {
           res.cookies.set({
+            ...options,
             name,
             value: "",
-            ...options,
           });
         },
-      },
+        getAll() {
+          return request.cookies.getAll().map((cookie) => ({
+            name: cookie.name,
+            value: cookie.value,
+          }));
+        },
+      } as CookieMethods,
     }
   );
 

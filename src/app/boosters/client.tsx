@@ -10,6 +10,7 @@ import { PackOpening } from "@/components/boosters/PackOpening";
 import { useState } from "react";
 import { OpenedCard } from "@/types/cards";
 import { useSound } from "@/hooks/useSound";
+import type { ReactElement } from "react";
 
 interface Product {
   id: string;
@@ -120,7 +121,7 @@ export function BoostersClient() {
 
     if (currentBoosterIndex < boosters.length - 1) {
       // Passer au prochain booster
-      setCurrentBoosterIndex((prev) => prev + 1);
+      setCurrentBoosterIndex((prev: number) => prev + 1);
     } else {
       // Fermer le pack
       handleClose();
@@ -195,7 +196,7 @@ export function BoostersClient() {
 
         <PackOpening
           isOpen={isOpeningPack}
-          onClose={handleClose}
+          _onClose={handleClose}
           cards={boosters[currentBoosterIndex]?.cards || []}
           onCollect={handleNextBooster}
           progress={
